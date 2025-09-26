@@ -1,4 +1,4 @@
-module github.com/containers/kubernetes-mcp-server
+module github.com/jgericke/kubernetes-mcp-server
 
 go 1.24.1
 
