@@ -2,8 +2,12 @@ module github.com/jgericke/kubernetes-mcp-server
 
 go 1.24.1
 
+// force all imports of the upstream module path to use *this* source tree
+replace github.com/containers/kubernetes-mcp-server => .
+
 require (
 	github.com/BurntSushi/toml v1.5.0
+	github.com/containers/kubernetes-mcp-server v0.0.0-00010101000000-000000000000
 	github.com/coreos/go-oidc/v3 v3.15.0
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/go-jose/go-jose/v4 v4.1.2
