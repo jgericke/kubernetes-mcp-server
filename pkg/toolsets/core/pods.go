@@ -400,7 +400,20 @@ func podsLog(params api.ToolHandlerParams) (*api.ToolCallResult, error) {
 	previous := params.GetArguments()["previous"]
 	var previousBool bool
 	if previous != nil {
-		previousBool = previous.(bool)
+		// Convert to bool - safely handle both bool, string, float64, int types
+		switch v := previous.(type) {
+		case bool:
+			previousBool = v
+		case string:
+			previousBool = v == "true" || v == "True" || v == "TRUE" || v == "1"
+		case float64:
+			previousBool = v != 0
+		case int:
+			previousBool = v != 0
+		default:
+			// Default to false for unknown types
+			previousBool = false
+		}
 	}
 	// Extract tailLines parameter
 	tail := params.GetArguments()["tail"]
