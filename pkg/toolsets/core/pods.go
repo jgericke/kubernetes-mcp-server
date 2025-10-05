@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/google/jsonschema-go/jsonschema"
 	"k8s.io/kubectl/pkg/metricsutil"
@@ -415,11 +416,11 @@ func podsLog(params api.ToolHandlerParams) (*api.ToolCallResult, error) {
 			previousBool = false
 		}
 	}
-	// Extract tailLines parameter
+	// Extract tailLines parameter with default of 10 lines
 	tail := params.GetArguments()["tail"]
-	var tailInt int64
+	var tailInt int64 = 10 // Default to 10 lines
 	if tail != nil {
-		// Convert to int64 - safely handle both float64 (JSON number) and int types
+		// Convert to int64 - safely handle string, float64, and int types
 		switch v := tail.(type) {
 		case float64:
 			tailInt = int64(v)
@@ -427,8 +428,15 @@ func podsLog(params api.ToolHandlerParams) (*api.ToolCallResult, error) {
 			tailInt = int64(v)
 		case int64:
 			tailInt = v
+		case string:
+			// Try to parse string as int64
+			var err error
+			tailInt, err = strconv.ParseInt(v, 10, 64)
+			if err != nil {
+				return api.NewToolCallResult("", fmt.Errorf("failed to parse tail parameter from string: %v", err)), nil
+			}
 		default:
-			return api.NewToolCallResult("", fmt.Errorf("failed to parse tail parameter: expected integer, got %T", tail)), nil
+			return api.NewToolCallResult("", fmt.Errorf("failed to parse tail parameter: expected integer or string, got %T", tail)), nil
 		}
 	}
 
